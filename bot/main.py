@@ -6,7 +6,8 @@ class MessageType(Enum):
     NONE = 0,
     HELP = 1,
     LIST = 2,
-    SMITE = 3
+    SMITE = 3,
+    SAY_HI = 4
 
 smite_commands = {
     "vvgt": "That's too bad!",
@@ -45,6 +46,8 @@ def determine_message_type(message: discord.Message):
         return MessageType.LIST
     if message_command in smite_commands:
         return MessageType.SMITE
+    if message_command == "hi":
+        return MessageType.SAY_HI
     return MessageType.NONE
 
 class QuickChatClient(discord.Client):
@@ -67,6 +70,8 @@ class QuickChatClient(discord.Client):
             fin_string = "You can use the following smite keywords: "
             keys = ", ".join(smite_commands.keys())
             await message.channel.send(fin_string + keys)
+        if message_type == MessageType.SAY_HI:
+            await message.channel.send("Hello, {}".format(message.author.mention))
 
 
 
