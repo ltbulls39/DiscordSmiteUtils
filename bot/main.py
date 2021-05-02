@@ -1,6 +1,8 @@
 import discord
 import os
+from smite_vgs import VGS
 from enum import Enum
+
 
 class MessageType(Enum):
     NONE = 0,
@@ -9,26 +11,10 @@ class MessageType(Enum):
     SMITE = 3,
     SAY_HI = 4
 
-smite_commands = {
-    "vvgt": "That's too bad!",
-    "vvgw": "You're welcome!",
-    "vvgr": "No Problem!",
-    "vvgq": "Quiet!",
-    "vvgl": "Good luck!",
-    "vvgg": "Good game!",
-    "vvgb": "Bye!",
-    "vea": "Awesome!",
-    "veg": "I'm the Greatest!",
-    "ver": "You Rock!",
-    "vva": "Ok!",
-    "vvb": "Be right back!",
-    "vvn": "No!",
-    "vvp": "Please?",
-    "vvs": "Sorry!",
-    "vvt": "Thanks!",
-    "vvx": "Cancel that!",
-    "vvy": "Yes!"
-}
+
+vgs = VGS()
+
+
 def validate_message(self, message: discord.Message):
     if message.author == self.user:
         return False
@@ -38,17 +24,36 @@ def validate_message(self, message: discord.Message):
         return False
     return True
 
+
 def determine_message_type(message: discord.Message):
     message_command = message.content[1:]
     if message_command.lower() == "help":
         return MessageType.HELP
     if message_command.lower() == "list_commands":
         return MessageType.LIST
-    if message_command in smite_commands:
+    if vgs.is_command(message_command):
         return MessageType.SMITE
     if message_command == "hi":
         return MessageType.SAY_HI
     return MessageType.NONE
+
+
+def send_message(message_type, message: discord.Message):
+    message_command = message.content[1:]
+    if message_type == MessageType.SMITE:
+        channel_message = "{} - {}".format(vgs.get_response(message_command), message.author.mention)
+        channel = message.channel
+        await channel.send(channel_message)
+        await message.delete()
+    if message_type == MessageType.HELP:
+        await message.channel.send("Available commands: list_commands, hi")
+    if message_type == MessageType.LIST:
+        fin_string = "You can use the following smite keywords: "
+        keys = ", ".join(vgs.keys())
+        await message.channel.send(fin_string + keys)
+    if message_type == MessageType.SAY_HI:
+        await message.channel.send("Hello, {}".format(message.author.mention))
+
 
 class QuickChatClient(discord.Client):
     async def on_ready(self):
@@ -57,22 +62,10 @@ class QuickChatClient(discord.Client):
     async def on_message(self, message: discord.Message):
         if not validate_message(self, message):
             return
-        message_command = message.content[1:]
+        # Determine a message type to send
         message_type = determine_message_type(message)
-        if message_type == MessageType.SMITE:
-            channel_message = "{} - {}".format(smite_commands[message_command], message.author.mention)
-            channel = message.channel
-            await channel.send(channel_message)
-            await message.delete()
-        if message_type == MessageType.HELP:
-            await message.channel.send("Available commands: list_commands")
-        if message_type == MessageType.LIST:
-            fin_string = "You can use the following smite keywords: "
-            keys = ", ".join(smite_commands.keys())
-            await message.channel.send(fin_string + keys)
-        if message_type == MessageType.SAY_HI:
-            await message.channel.send("Hello, {}".format(message.author.mention))
-
+        # Send corresponding message to channel
+        send_message(message_type, message)
 
 
 client = QuickChatClient()
