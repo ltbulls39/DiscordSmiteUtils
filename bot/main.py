@@ -65,7 +65,7 @@ class QuickChatClient(discord.Client):
         # Determine a message type to send
         message_type = determine_message_type(message)
         # Send corresponding message to channel
-        send_message(message_type, message)
+        await send_message(message_type, message)
 
 
 client = QuickChatClient()
