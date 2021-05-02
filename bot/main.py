@@ -60,7 +60,7 @@ class QuickChatClient(discord.Client):
         message_command = message.content[1:]
         message_type = determine_message_type(message)
         if message_type == MessageType.SMITE:
-            channel_message = "{} \n- From {}".format(smite_commands[message_command], message.author.mention)
+            channel_message = "{} - {}".format(smite_commands[message_command], message.author.mention)
             channel = message.channel
             await channel.send(channel_message)
             await message.delete()
