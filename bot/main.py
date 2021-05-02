@@ -38,7 +38,7 @@ def determine_message_type(message: discord.Message):
     return MessageType.NONE
 
 
-def send_message(message_type, message: discord.Message):
+async def send_message(message_type, message: discord.Message):
     message_command = message.content[1:]
     if message_type == MessageType.SMITE:
         channel_message = "{} - {}".format(vgs.get_response(message_command), message.author.mention)
