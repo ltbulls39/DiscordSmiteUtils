@@ -1,1 +1,3 @@
 discord.py
+discord~=1.0.1
+pyrez~=1.1.1.1
